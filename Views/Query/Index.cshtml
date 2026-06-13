@@ -1,0 +1,58 @@
+﻿@using System.Data
+@model DataTable
+
+@{
+    ViewData["Title"] = "Mini SSMS";
+}
+
+<h2>Mini SSMS Explorer</h2>
+
+<form method="post">
+    <div class="form-group mb-3">
+        <label for="query"><strong>Enter SQL Query:</strong></label>
+        <textarea class="form-control" id="query" name="query" rows="5">@ViewBag.Query</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Execute</button>
+</form>
+
+<hr />
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @ViewBag.Error
+    </div>
+}
+else if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">
+        @ViewBag.Message
+    </div>
+}
+
+@if (Model != null && Model.Columns.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    @foreach (DataColumn col in Model.Columns)
+                    {
+                        <th>@col.ColumnName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow row in Model.Rows)
+                {
+                    <tr>
+                        @foreach (var item in row.ItemArray)
+                        {
+                            <td>@item?.ToString()</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
