@@ -1,0 +1,36 @@
+@model WebApplication1.Models.UserProfile
+
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center mt-3">
+                    
+                    <!-- We use a free API to generate an avatar based on the user's name -->
+                    <img src="https://ui-avatars.com/api/?name=@Model.Name&background=0D8ABC&color=fff&size=120" 
+                         alt="Profile Picture" 
+                         class="rounded-circle mb-3 shadow-sm" />
+
+                    <h2 class="card-title fw-bold">@Model.Name</h2>
+                    <h5 class="text-muted mb-4">@Model.JobTitle</h5>
+                    
+                    <p class="card-text text-start px-3">
+                        @Model.Bio
+                    </p>
+
+                    <hr class="mt-4 mb-4" />
+                    
+                    <div class="d-flex justify-content-center align-items-center mb-2">
+                        <span class="fw-bold me-2">Email:</span> 
+                        <a href="mailto:@Model.Email" class="text-decoration-none">@Model.Email</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
