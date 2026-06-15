@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Views\Cart\" />
     <Folder Include="Views\Query\" />
   </ItemGroup>
 
