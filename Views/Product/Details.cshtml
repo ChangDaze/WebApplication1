@@ -1,0 +1,38 @@
+@model WebApplication1.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <a asp-action="Index" class="btn btn-outline-secondary mb-4">&larr; Back to Products</a>
+
+        <div class="card shadow-sm">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/800x400?text=No+Image" : Model.ImageUrl)"
+                 class="card-img-top" alt="@Model.Name" style="max-height: 400px; object-fit: cover;">
+
+            <div class="card-body p-4">
+                <h2 class="card-title">@Model.Name</h2>
+                <p class="fs-4 text-primary fw-bold">@Model.Price.ToString("C")</p>
+                <p class="card-text text-muted">@Model.Description</p>
+
+                @if (Model.StockQuantity > 0)
+                {
+                    <p class="text-success">In Stock (@Model.StockQuantity available)</p>
+
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex align-items-center gap-3 mt-3">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity"
+                               class="form-control" style="width: 90px;" />
+                        <button type="submit" class="btn btn-success btn-lg">Add to Cart</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-danger fw-bold">Out of Stock</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

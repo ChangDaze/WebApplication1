@@ -15,11 +15,26 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        // READ: Display all products
-        public async Task<IActionResult> Index()
+        // READ: Display all products, with optional search
+        public async Task<IActionResult> Index(string? search)
         {
-            var products = await _context.Products.ToListAsync();
-            return View(products);
+            var query = _context.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+
+            ViewData["Search"] = search;
+            return View(await query.ToListAsync());
+        }
+
+        // DETAILS: Show a single product
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                return NotFound();
+
+            return View(product);
         }
 
         // CREATE: Show the form
