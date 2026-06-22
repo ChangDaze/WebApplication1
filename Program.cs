@@ -48,6 +48,12 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 
+// Seed the Admin role and admin user on startup
+using (var scope = app.Services.CreateScope())
+{
+    await SeedData.InitializeAsync(scope.ServiceProvider);
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

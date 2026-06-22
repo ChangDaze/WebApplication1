@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
@@ -38,6 +39,7 @@ namespace WebApplication1.Controllers
         }
 
         // CREATE: Show the form
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -45,6 +47,7 @@ namespace WebApplication1.Controllers
 
         // CREATE: Handle the form submission
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product)
         {
@@ -59,6 +62,7 @@ namespace WebApplication1.Controllers
 
         // DELETE: Handle removal
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
