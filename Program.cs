@@ -27,6 +27,7 @@ builder.Services.AddHttpContextAccessor();
 // Register Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
+    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = true;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
@@ -34,6 +35,12 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+});
 
 // Register Application Services
 builder.Services.AddScoped<ICartService, CartService>();

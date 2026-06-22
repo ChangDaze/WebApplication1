@@ -1,0 +1,52 @@
+@model IEnumerable<WebApplication1.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<h2 class="mb-4">My Orders</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You haven't placed any orders yet. <a asp-controller="Product" asp-action="Index">Start shopping</a>.
+    </div>
+}
+else
+{
+    @foreach (var order in Model)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><strong>Order #@order.Id</strong> &mdash; @order.OrderDate.ToString("MMM dd, yyyy")</span>
+                <span class="text-success fw-bold">@order.TotalAmount.ToString("C")</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Product</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detail in order.OrderDetails)
+                        {
+                            <tr>
+                                <td class="ps-3">@detail.Product?.Name</td>
+                                <td>@detail.Quantity</td>
+                                <td>@detail.UnitPrice.ToString("C")</td>
+                                <td>@((detail.UnitPrice * detail.Quantity).ToString("C"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-muted small">
+                Shipped to: @order.ShippingAddress
+            </div>
+        </div>
+    }
+}
