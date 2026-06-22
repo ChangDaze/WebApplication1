@@ -1,3 +1,21 @@
-/.vscode
+# Build output
 /bin
 /obj
+[Dd]ebug/
+[Rr]elease/
+
+# IDE
+/.vscode
+/.vs
+*.user
+*.suo
+
+# User-specific / secrets
+appsettings.Development.json
+secrets.json
+
+# Generated SQL scripts (use `dotnet ef migrations script` to regenerate)
+migration.sql
+
+# Logs
+*.log
