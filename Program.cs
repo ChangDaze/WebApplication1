@@ -46,6 +46,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+// Email: dev logging sender. Swap this single line for a real
+// SmtpEmailSender / SendGridEmailSender in production.
+builder.Services.AddScoped<IEmailSender, LoggingEmailSender>();
+
 var app = builder.Build();
 
 // Seed the Admin role and admin user on startup

@@ -12,12 +12,15 @@ namespace WebApplication1.Services
         private readonly ApplicationDbContext _context;
         private readonly ICartService _cartService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmailSender _emailSender;
 
-        public OrderService(ApplicationDbContext context, ICartService cartService, IHttpContextAccessor httpContextAccessor)
+        public OrderService(ApplicationDbContext context, ICartService cartService,
+            IHttpContextAccessor httpContextAccessor, IEmailSender emailSender)
         {
             _context = context;
             _cartService = cartService;
             _httpContextAccessor = httpContextAccessor;
+            _emailSender = emailSender;
         }
 
         public async Task<int> PlaceOrderAsync(CheckoutViewModel form)
@@ -50,6 +53,7 @@ namespace WebApplication1.Services
                 order.OrderDetails.Add(new OrderDetail
                 {
                     ProductId = item.ProductId,
+                    Product = item.Product,
                     Quantity = item.Quantity,
                     UnitPrice = item.Product!.Price
                 });
@@ -60,7 +64,25 @@ namespace WebApplication1.Services
 
             await _cartService.ClearCartAsync();
 
+            await SendConfirmationEmailAsync(order);
+
             return order.Id;
+        }
+
+        private async Task SendConfirmationEmailAsync(Order order)
+        {
+            var lines = order.OrderDetails
+                .Select(d => $"  - {d.Product?.Name} x{d.Quantity} @ {d.UnitPrice:C}");
+
+            var body =
+                $"Hi {order.CustomerName},\n\n" +
+                $"Thank you for your order #{order.Id} placed on {order.OrderDate:MMM dd, yyyy}.\n\n" +
+                string.Join("\n", lines) + "\n\n" +
+                $"Total: {order.TotalAmount:C}\n" +
+                $"Shipping to: {order.ShippingAddress}\n\n" +
+                "We'll let you know when it ships.";
+
+            await _emailSender.SendEmailAsync(order.Email, $"Order Confirmation #{order.Id}", body);
         }
     }
 }
