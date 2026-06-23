@@ -50,6 +50,10 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 // SmtpEmailSender / SendGridEmailSender in production.
 builder.Services.AddScoped<IEmailSender, LoggingEmailSender>();
 
+// Payment: dev fake processor. Swap this single line for a real
+// StripePaymentService in production.
+builder.Services.AddScoped<IPaymentService, FakePaymentService>();
+
 var app = builder.Build();
 
 // Seed the Admin role and admin user on startup

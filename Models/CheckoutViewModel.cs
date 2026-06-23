@@ -15,5 +15,11 @@ namespace WebApplication1.Models
         [Required(ErrorMessage = "Shipping address is required")]
         [Display(Name = "Shipping Address")]
         public string ShippingAddress { get; set; }
+
+        // Card details are used only to process payment and are NEVER stored.
+        [Required(ErrorMessage = "Card number is required")]
+        [Display(Name = "Card Number")]
+        [CreditCard(ErrorMessage = "Enter a valid card number")]
+        public string CardNumber { get; set; }
     }
 }

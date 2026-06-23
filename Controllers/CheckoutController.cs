@@ -9,11 +9,13 @@ namespace WebApplication1.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly ICartService _cartService;
+        private readonly IPaymentService _paymentService;
 
-        public CheckoutController(IOrderService orderService, ICartService cartService)
+        public CheckoutController(IOrderService orderService, ICartService cartService, IPaymentService paymentService)
         {
             _orderService = orderService;
             _cartService = cartService;
+            _paymentService = paymentService;
         }
 
         // GET: /Checkout
@@ -32,6 +34,15 @@ namespace WebApplication1.Controllers
         {
             if (!ModelState.IsValid)
                 return View(form);
+
+            // Charge the card first. Only create the order if payment succeeds.
+            var amount = await _cartService.GetCartTotalAsync();
+            var payment = await _paymentService.ChargeAsync(amount, form.CardNumber);
+            if (!payment.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, payment.Error ?? "Payment failed.");
+                return View(form);
+            }
 
             try
             {
