@@ -17,6 +17,8 @@ namespace WebApplication1.Services
 
     public interface IPaymentService
     {
-        Task<PaymentResult> ChargeAsync(decimal amount, string cardNumber);
+        // paymentSource is provider-neutral: a raw card number for the dev fake,
+        // or a payment token (e.g. Stripe) for a real implementation.
+        Task<PaymentResult> ChargeAsync(decimal amount, string paymentSource);
     }
 }
