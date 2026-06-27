@@ -10,12 +10,15 @@ namespace WebApplication1.Controllers
         private readonly IOrderService _orderService;
         private readonly ICartService _cartService;
         private readonly IPaymentService _paymentService;
+        private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(IOrderService orderService, ICartService cartService, IPaymentService paymentService)
+        public CheckoutController(IOrderService orderService, ICartService cartService,
+            IPaymentService paymentService, ILogger<CheckoutController> logger)
         {
             _orderService = orderService;
             _cartService = cartService;
             _paymentService = paymentService;
+            _logger = logger;
         }
 
         // GET: /Checkout
@@ -51,6 +54,11 @@ namespace WebApplication1.Controllers
             }
             catch (InvalidOperationException ex)
             {
+                // Payment already succeeded but the order could not be created.
+                // This needs attention: the customer was charged without an order.
+                _logger.LogError(ex,
+                    "Order creation failed after a successful charge of {Amount:C} (transaction {TransactionId})",
+                    amount, payment.TransactionId);
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(form);
             }

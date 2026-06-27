@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -13,14 +14,17 @@ namespace WebApplication1.Services
         private readonly ICartService _cartService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IEmailSender _emailSender;
+        private readonly ILogger<OrderService> _logger;
 
         public OrderService(ApplicationDbContext context, ICartService cartService,
-            IHttpContextAccessor httpContextAccessor, IEmailSender emailSender)
+            IHttpContextAccessor httpContextAccessor, IEmailSender emailSender,
+            ILogger<OrderService> logger)
         {
             _context = context;
             _cartService = cartService;
             _httpContextAccessor = httpContextAccessor;
             _emailSender = emailSender;
+            _logger = logger;
         }
 
         public async Task<int> PlaceOrderAsync(CheckoutViewModel form)
@@ -30,8 +34,13 @@ namespace WebApplication1.Services
             foreach (var item in cartItems)
             {
                 if (item.Quantity > item.Product!.StockQuantity)
+                {
+                    _logger.LogWarning(
+                        "Order rejected: requested {Requested} of \"{Product}\" but only {InStock} in stock",
+                        item.Quantity, item.Product!.Name, item.Product!.StockQuantity);
                     throw new InvalidOperationException(
                         $"Sorry, only {item.Product!.StockQuantity} of \"{item.Product!.Name}\" are in stock.");
+                }
             }
 
             var total = cartItems.Sum(item => item.Product!.Price * item.Quantity);
@@ -61,6 +70,10 @@ namespace WebApplication1.Services
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Order #{OrderId} placed by user {UserId} for {Total:C} ({ItemCount} line items)",
+                order.Id, userId ?? "(guest)", total, order.OrderDetails.Count);
 
             await _cartService.ClearCartAsync();
 

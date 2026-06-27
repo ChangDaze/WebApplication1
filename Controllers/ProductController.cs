@@ -9,11 +9,13 @@ namespace WebApplication1.Controllers
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<ProductController> _logger;
 
         // Dependency Injection provides the DbContext here
-        public ProductController(ApplicationDbContext context)
+        public ProductController(ApplicationDbContext context, ILogger<ProductController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // READ: Display all products, with optional search
@@ -55,6 +57,9 @@ namespace WebApplication1.Controllers
             {
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation(
+                    "Admin {Admin} created product #{ProductId} \"{Name}\" ({Price:C})",
+                    User.Identity?.Name, product.Id, product.Name, product.Price);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -71,8 +76,11 @@ namespace WebApplication1.Controllers
             {
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
+                _logger.LogWarning(
+                    "Admin {Admin} deleted product #{ProductId} \"{Name}\"",
+                    User.Identity?.Name, product.Id, product.Name);
             }
-            
+
             return RedirectToAction(nameof(Index));
         }
         

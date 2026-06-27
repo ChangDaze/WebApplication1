@@ -9,11 +9,14 @@ namespace WebApplication1.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager, ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
         // GET: /Account/Register
@@ -31,9 +34,13 @@ namespace WebApplication1.Controllers
 
             if (result.Succeeded)
             {
+                _logger.LogInformation("New account registered: {Email}", form.Email);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
             }
+
+            _logger.LogWarning("Registration failed for {Email}: {Errors}",
+                form.Email, string.Join("; ", result.Errors.Select(e => e.Description)));
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error.Description);
@@ -55,8 +62,12 @@ namespace WebApplication1.Controllers
                 form.Email, form.Password, form.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
+            {
+                _logger.LogInformation("User logged in: {Email}", form.Email);
                 return RedirectToAction("Index", "Home");
+            }
 
+            _logger.LogWarning("Failed login attempt for {Email}", form.Email);
             ModelState.AddModelError(string.Empty, "Invalid email or password");
             return View(form);
         }
@@ -65,7 +76,9 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+            var email = User.Identity?.Name;
             await _signInManager.SignOutAsync();
+            _logger.LogInformation("User logged out: {Email}", email ?? "(unknown)");
             return RedirectToAction("Index", "Home");
         }
     }

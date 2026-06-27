@@ -1,10 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Text.Json.Serialization;
 using WebApplication1.Data;
 using WebApplication1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Logging: Serilog reads its config from appsettings.json ("Serilog" section),
+// writing to the console and a daily rolling file under Logs/.
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
@@ -71,6 +79,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// One concise log line per HTTP request (method, path, status, elapsed ms).
+app.UseSerilogRequestLogging();
+
 app.UseRouting();
 
 // Enable Session before Authorization

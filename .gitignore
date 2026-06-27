@@ -19,3 +19,4 @@ migration.sql
 
 # Logs
 *.log
+/Logs
